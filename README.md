@@ -1,5 +1,5 @@
 
-  # AI Lecture Generator UI Kit (Copy)
+  # AI Lecture Generator 
 
   This is a code bundle for AI Lecture Generator UI Kit (Copy). The original project is available at https://www.figma.com/design/hCoKaBItZTuxKCgtCayVCa/AI-Lecture-Generator-UI-Kit--Copy-.
 
