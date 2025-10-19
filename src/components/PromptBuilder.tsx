@@ -5,7 +5,7 @@ import { Card } from './ui/card';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { Badge } from './ui/badge';
-
+import React from 'react';
 interface PromptBuilderProps {
   prompt: string;
   tone: string;

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Slider } from './ui/slider';
 import { Badge } from './ui/badge';
 import type { Job } from '../App';
-
+import React from 'react';  
 interface OptionsPanelProps {
   selectedAvatar: string;
   selectedVoice: string;

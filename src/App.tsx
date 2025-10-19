@@ -6,8 +6,9 @@ import { PromptScriptPage } from './components/pages/PromptScriptPage';
 import { AvatarVoicePage } from './components/pages/AvatarVoicePage';
 import { VideoExportPage } from './components/pages/VideoExportPage';
 import { Toaster } from './components/ui/sonner';
-import { toast } from 'sonner@2.0.3';
-
+import { toast } from 'sonner';
+import { apiService, LectureTopicRequest } from './services/api';
+import React from 'react';
 export interface LectureVersion {
   id: number;
   text: string;
@@ -42,6 +43,29 @@ export default function App() {
   const [voiceSpeed, setVoiceSpeed] = useState(1.0);
   const [styleDepth, setStyleDepth] = useState(50);
   const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+  const [backendConnected, setBackendConnected] = useState(false);
+
+  // Check backend connection and load saved lecture text on app startup
+  useEffect(() => {
+    const checkBackendConnection = async () => {
+      try {
+        await apiService.healthCheck();
+        setBackendConnected(true);
+      } catch (error) {
+        setBackendConnected(false);
+        toast.error('⚠️ Backend server not available. Some features may not work.');
+      }
+    };
+    
+    checkBackendConnection();
+
+    // Загружаем сохраненный текст лекции при запуске
+    const savedText = localStorage.getItem('savedLectureText');
+    if (savedText) {
+      setLectureText(savedText);
+      setHasUnsavedChanges(false);
+    }
+  }, []);
 
   // Update current step based on progress and page
   useEffect(() => {
@@ -66,130 +90,52 @@ export default function App() {
     setIsGenerating(true);
     setPromptChanged(false);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2500));
-    
-    let generatedText = `# ${prompt}
+    try {
+      // Create lecture request
+      const lectureRequest: LectureTopicRequest = {
+        topic: prompt,
+        duration_minutes: 10, // Default duration
+        difficulty_level: audience.toLowerCase(),
+        target_audience: tone.toLowerCase()
+      };
 
-## Introduction
-
-In this lecture, we will explore the core concepts and working principles. The material is designed for ${audience.toLowerCase()} level learners with a ${tone.toLowerCase()} approach.
-
-## Main Content
-
-The first important point is understanding the fundamental principles. Let's look at several key aspects:
-
-- **Concept 1**: Detailed explanation of the first concept with practical examples
-- **Concept 2**: Description of the second important element that builds on the foundation
-- **Concept 3**: Third key point for comprehensive understanding of the topic
-`;
-
-    // Add code examples if selected
-    if (selectedAddons.includes('code examples')) {
-      generatedText += `
-## Code Examples
-
-\`\`\`javascript
-// Practical code example demonstrating the concepts
-function demonstrateExample() {
-  const result = performCalculation();
-  console.log("Example output:", result);
-  return result;
-}
-
-// Additional example showing implementation
-const practicalImplementation = () => {
-  // Step-by-step implementation
-  const step1 = initialize();
-  const step2 = process(step1);
-  return finalize(step2);
-};
-\`\`\`
-`;
+      // Generate lecture using the API
+      const response = await apiService.generateLecture(lectureRequest);
+      
+      if (response.status === 1 && response.slides.length > 0) {
+        // Convert slides to markdown format
+        let generatedText = `# ${response.topic}\n\n`;
+        
+        response.slides.forEach((slide, index) => {
+          generatedText += `## ${slide.title}\n\n`;
+          generatedText += `${slide.content}\n\n`;
+          
+          if (slide.script) {
+            generatedText += `**Script**: ${slide.script}\n\n`;
+          }
+          
+          if (slide.image_prompt) {
+            generatedText += `**Image**: ${slide.image_prompt}\n\n`;
+          }
+        });
+        
+        setLectureText(generatedText);
+        
+        localStorage.setItem('savedLectureText', generatedText);
+       
+        
+        setIsGenerating(false);
+        setHasUnsavedChanges(false);
+        setIsApproved(false);
+        
+        toast.success('✅ Lecture generated and saved successfully');
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (error) {
+      setIsGenerating(false);
+      toast.error('❌ Failed to generate lecture. Please try again.');
     }
-
-    // Add visuals if selected
-    if (selectedAddons.includes('visuals')) {
-      generatedText += `
-## Visual Examples
-
-📊 **Diagram 1**: Conceptual overview showing the relationship between key components
-
-🎨 **Illustration 2**: Visual representation of the workflow and process steps
-
-📈 **Chart 3**: Comparison of different approaches and their effectiveness
-
-💡 **Infographic**: Key statistics and important data points visualized
-
-`;
-    }
-
-    // Add exercises if selected
-    if (selectedAddons.includes('exercises')) {
-      generatedText += `
-## Practice Exercises
-
-### Exercise 1: Basic Application
-Try to apply the concepts learned by solving this problem:
-- Task: Implement the basic functionality discussed
-- Expected outcome: Working solution demonstrating understanding
-- Hints: Review the examples in the Main Content section
-
-### Exercise 2: Advanced Challenge
-For those seeking deeper understanding:
-- Task: Extend the solution with additional features
-- Expected outcome: Enhanced implementation showing mastery
-- Bonus: Optimize for performance and scalability
-
-### Exercise 3: Real-World Scenario
-Apply your knowledge to a practical situation:
-- Context: A common industry problem that requires these concepts
-- Task: Design and implement a complete solution
-- Deliverable: Documented approach with working code
-
-`;
-    }
-
-    // Add Q&A section if selected
-    if (selectedAddons.includes('Q&A section')) {
-      generatedText += `
-## Q&A Section
-
-**Q: What are the most common mistakes beginners make with this topic?**
-A: The most frequent errors include misunderstanding the core principles and trying to skip foundational concepts. Always ensure you understand each step before moving forward.
-
-**Q: How can I practice and improve my understanding?**
-A: Regular practice with varied examples is key. Try to implement different variations and experiment with the concepts in your own projects.
-
-**Q: What are the real-world applications of these concepts?**
-A: These principles are widely used in modern development, from small applications to large-scale systems. Understanding them opens doors to various career opportunities.
-
-**Q: Where can I find additional resources for learning?**
-A: Official documentation, community forums, and hands-on tutorials are excellent resources. Focus on practical implementation alongside theoretical understanding.
-
-**Q: How long does it typically take to master this material?**
-A: The timeline varies by individual, but with consistent practice, most learners see significant progress within 2-4 weeks. Remember, mastery comes with continuous application.
-
-`;
-    }
-
-    generatedText += `
-## Summary
-
-In summary, we have covered the main aspects of the topic. This knowledge will help you in further studying the material and applying it in real-world scenarios.
-
-## Key Takeaways
-
-- Review the key concepts covered
-- Practice with the provided examples
-- Explore additional resources for deeper understanding`;
-    
-    setLectureText(generatedText);
-    setIsGenerating(false);
-    setHasUnsavedChanges(false);
-    setIsApproved(false);
-    
-    toast.success('✅ Lecture generated successfully');
   };
 
   const handlePromptChange = (value: string) => {
@@ -217,8 +163,21 @@ In summary, we have covered the main aspects of the topic. This knowledge will h
   };
 
   const handleSave = () => {
+    if (lectureText.trim()) {
+      localStorage.setItem('savedLectureText', lectureText);
+      setHasUnsavedChanges(false);
+      toast.success('Lecture text saved locally');
+    } else {
+      toast.error('No lecture text to save');
+    }
+  };
+
+  const handleClearSavedText = () => {
+    localStorage.removeItem('savedLectureText');
+    setLectureText('');
     setHasUnsavedChanges(false);
-    toast.success('Changes saved');
+    setIsApproved(false);
+    toast.success('Saved lecture text cleared');
   };
 
   const handleApprove = () => {
@@ -226,8 +185,13 @@ In summary, we have covered the main aspects of the topic. This knowledge will h
       toast.error('Please save your changes first');
       return;
     }
+    
+    if (lectureText.trim()) {
+      localStorage.setItem('savedLectureText', lectureText);
+      toast.success('Lecture text saved and approved');
+    }
+    
     setIsApproved(true);
-    toast.success('✓ Script approved');
     
     // Navigate to avatar page after approval
     setTimeout(() => {
@@ -238,18 +202,40 @@ In summary, we have covered the main aspects of the topic. This knowledge will h
   const handleGenerateVideo = async () => {
     setIsGeneratingVideo(true);
     
-    toast.success('✨ Starting video generation...');
-    
-    // Simulate video generation
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    setIsGeneratingVideo(false);
-    toast.success('✨ Video generated successfully!');
-    
-    // Navigate to export page
-    setTimeout(() => {
-      setCurrentPage('video-export');
-    }, 1000);
+    try {
+      toast.success('✨ Starting video generation...');
+      
+      const imagePrompts = lectureText
+        .split('\n')
+        .filter(line => line.includes('**Image**:'))
+        .map(line => line.replace('**Image**:', '').trim())
+        .filter(prompt => prompt.length > 0);
+      
+      if (imagePrompts.length > 0) {
+        // Generate images using the first prompt as an example
+        const imageResponse = await apiService.generateImage({
+          text: imagePrompts[0]
+        });
+        
+        if (imageResponse.status === 1) {
+          toast.success('🎨 Images generated successfully!');
+        }
+      }
+      
+      // Simulate additional video processing time
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      setIsGeneratingVideo(false);
+      toast.success('✨ Video generated successfully!');
+      
+      // Navigate to export page
+      setTimeout(() => {
+        setCurrentPage('video-export');
+      }, 1000);
+    } catch (error) {
+      setIsGeneratingVideo(false);
+      toast.error('❌ Failed to generate video. Please try again.');
+    }
   };
 
   return (
@@ -258,6 +244,20 @@ In summary, we have covered the main aspects of the topic. This knowledge will h
       
       {/* Header */}
       <Header />
+      
+      {/* Backend Connection Status */}
+      {!backendConnected && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mx-4 mt-4 rounded">
+          <div className="flex">
+            <div className="ml-3">
+              <p className="text-sm">
+                <strong>Warning:</strong> Backend server is not available. 
+                Please make sure the backend is running on http://localhost:8000
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Step Progress Bar */}
       <StepProgressBar currentStep={currentStep} />
@@ -286,6 +286,7 @@ In summary, we have covered the main aspects of the topic. This knowledge will h
             onDismissPromptChange={() => setPromptChanged(false)}
             onSave={handleSave}
             onApprove={handleApprove}
+            onClearSavedText={handleClearSavedText}
           />
         )}
 

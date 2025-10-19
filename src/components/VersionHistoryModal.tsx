@@ -6,7 +6,7 @@ import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
 import { Card } from './ui/card';
 import type { LectureVersion } from '../App';
-
+import React from 'react';
 interface VersionHistoryModalProps {
   open: boolean;
   onClose: () => void;

@@ -7,7 +7,7 @@ import { Textarea } from './ui/textarea';
 import { Badge } from './ui/badge';
 import { Alert, AlertDescription } from './ui/alert';
 import { Skeleton } from './ui/skeleton';
-
+import React from 'react';
 interface LectureEditorProps {
   text: string;
   isGenerating: boolean;

@@ -1,5 +1,5 @@
-import higgsfieldLogo from 'figma:asset/6cfff50661e1e8c0e0c821c9f14d6bd52c9df5f1.png';
-
+import higgsfieldLogo from '../assets/6cfff50661e1e8c0e0c821c9f14d6bd52c9df5f1.png';
+import React from 'react';
 export function Header() {
   return (
     <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">

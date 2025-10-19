@@ -8,6 +8,7 @@ import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Skeleton } from '../ui/skeleton';
+import React from 'react';
 
 interface PromptScriptPageProps {
   prompt: string;
@@ -29,6 +30,7 @@ interface PromptScriptPageProps {
   onDismissPromptChange: () => void;
   onSave: () => void;
   onApprove: () => void;
+  onClearSavedText?: () => void;
 }
 
 const tones = [
@@ -66,7 +68,8 @@ export function PromptScriptPage({
   onUpdateFromPrompt,
   onDismissPromptChange,
   onSave,
-  onApprove
+  onApprove,
+  onClearSavedText
 }: PromptScriptPageProps) {
   const [viewMode, setViewMode] = useState<'full' | 'slides'>('full');
 
@@ -280,6 +283,16 @@ export function PromptScriptPage({
                 className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl"
               >
                 Save
+              </Button>
+            )}
+            {lectureText && !isGenerating && onClearSavedText && (
+              <Button 
+                onClick={onClearSavedText} 
+                size="sm" 
+                variant="outline"
+                className="border-red-500/50 text-red-500 hover:bg-red-500/10 rounded-xl"
+              >
+                Clear
               </Button>
             )}
           </div>

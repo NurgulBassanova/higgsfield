@@ -5,6 +5,7 @@ import { Progress } from './ui/progress';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import type { Job } from '../App';
+import React from 'react';
 
 interface VideoGenerationModalProps {
   open: boolean;

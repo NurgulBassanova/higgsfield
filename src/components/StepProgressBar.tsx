@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { Check } from 'lucide-react';
-
+import React from 'react';
 export type Step = 'prompt' | 'script' | 'slides' | 'avatar' | 'video';
 
 interface StepProgressBarProps {

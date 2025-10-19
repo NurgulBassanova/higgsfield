@@ -51,10 +51,14 @@
       "devDependencies": {
           "@types/node": "^20.10.0",
           "@vitejs/plugin-react-swc": "^3.10.2",
-          "vite": "6.3.5"
+          "vite": "6.3.5",
+          "concurrently": "^8.2.2"
       },
       "scripts": {
           "dev": "vite",
-          "build": "vite build"
+          "build": "vite build",
+          "start:backend": "cd higgsfield && python -m venv venv && venv/Scripts/activate && pip install -r requirements.txt && uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+          "start:frontend": "npm run dev",
+          "start:all": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
       }
   }

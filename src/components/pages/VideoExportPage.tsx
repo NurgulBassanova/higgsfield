@@ -3,7 +3,7 @@ import { Download, Upload, Copy, Check } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { useState } from 'react';
-
+import React from 'react';
 interface VideoExportPageProps {
   lectureTitle: string;
 }

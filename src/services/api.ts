@@ -1,0 +1,151 @@
+// API service for communicating with the Higgsfield backend
+const API_BASE_URL = 'http://localhost:8000';
+
+export interface LectureTopicRequest {
+  topic: string;
+  duration_minutes?: number;
+  difficulty_level?: string;
+  target_audience?: string;
+}
+
+export interface SlideInstruction {
+  slide_number: number;
+  title: string;
+  content: string;
+  image_prompt: string;
+  slide_type: string;
+  script: string;
+}
+
+export interface LectureResponse {
+  status: number;
+  topic: string;
+  duration_minutes: number;
+  slides: SlideInstruction[];
+  total_slides: number;
+}
+
+export interface GeneratedTextResponse {
+  status: number;
+  text: string;
+}
+
+export interface TextForGenerationPrompt {
+  text: string;
+}
+
+export interface ItemResult {
+  id: string;
+  url?: string;
+}
+
+export interface GenerateImageResponse {
+  status: number;
+  result: ItemResult[];
+}
+
+export interface TextAndAvatarGeneration {
+  text: string;
+  avatar: string;
+}
+
+class ApiService {
+  private baseUrl: string;
+
+  constructor(baseUrl: string = API_BASE_URL) {
+    this.baseUrl = baseUrl;
+  }
+
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+    
+    const defaultHeaders = {
+      'Content-Type': 'application/json',
+    };
+
+    const config: RequestInit = {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers,
+      },
+    };
+
+    try {
+      const response = await fetch(url, config);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error(`API request failed for ${endpoint}:`, error);
+      throw error;
+    }
+  }
+
+  // Lecture generation endpoints
+  async generateLecture(request: LectureTopicRequest): Promise<LectureResponse> {
+    return this.request<LectureResponse>('/lecture/generate-lecture', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+  }
+
+  async getLectureByTopic(
+    topic: string,
+    duration: number = 10,
+    difficulty: string = 'beginner'
+  ): Promise<LectureResponse> {
+    const params = new URLSearchParams({
+      duration: duration.toString(),
+      difficulty,
+    });
+    
+    return this.request<LectureResponse>(`/lecture/${encodeURIComponent(topic)}?${params}`);
+  }
+
+  // Text generation endpoints
+  async generateText(prompt: string): Promise<GeneratedTextResponse> {
+    return this.request<GeneratedTextResponse>('/lecture/generate-text', {
+      method: 'POST',
+      body: JSON.stringify(prompt),
+    });
+  }
+
+  async generateTextFromPrompt(request: TextForGenerationPrompt): Promise<GeneratedTextResponse> {
+    return this.request<GeneratedTextResponse>('/generate-text', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+  }
+
+  // Image generation endpoints
+  async generateImage(request: TextForGenerationPrompt): Promise<GenerateImageResponse> {
+    return this.request<GenerateImageResponse>('/generate-image', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+  }
+
+  async generateImageWithAvatar(request: TextAndAvatarGeneration): Promise<GenerateImageResponse> {
+    return this.request<GenerateImageResponse>('/generate-image-with-avatar', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+  }
+
+  // Health check
+  async healthCheck(): Promise<any> {
+    return this.request('/');
+  }
+}
+
+// Export singleton instance
+export const apiService = new ApiService();
+export default apiService;
+

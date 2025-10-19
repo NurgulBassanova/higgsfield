@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion } from 'motion/react';
 import { Video } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -5,9 +6,9 @@ import { Card } from '../ui/card';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Slider } from '../ui/slider';
-import yerzatImg from 'figma:asset/5292c462b881b123eddb6787689e8484de390c37.png';
-import jamesImg from 'figma:asset/2a2e2c263f941d47cbb664ae988fc3044a3373ec.png';
-import danelyaImg from 'figma:asset/331251e249e74d3c6758b4ee7ad282a51b7b1a80.png';
+import yerzatImg from '../../assets/5292c462b881b123eddb6787689e8484de390c37.png';
+import jamesImg from '../../assets/2a2e2c263f941d47cbb664ae988fc3044a3373ec.png';
+import danelyaImg from '../../assets/331251e249e74d3c6758b4ee7ad282a51b7b1a80.png';
 
 interface AvatarVoicePageProps {
   selectedAvatar: string;
