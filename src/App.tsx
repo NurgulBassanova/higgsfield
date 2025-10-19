@@ -235,16 +235,11 @@ export default function App() {
         throw new Error('Avatar URL not found');
       }
       
-     
-      const videoResponse = await apiService.generateVideo(lectureText, avatarUrl);
-      
-      if (videoResponse.status === 1) {
-        setVideoTaskId(videoResponse.task_id);
-        toast.success('🎬 Video generation started!');
-      }
+      // Updated call - no need to handle task_id anymore
+      await apiService.generateVideo(lectureText, avatarUrl);
       
       setIsGeneratingVideo(false);
-      toast.success('✨ Video generation initiated successfully!');
+      toast.success('✨ Video generated and downloaded successfully!');
       
       // Navigate to export page
       setTimeout(() => {

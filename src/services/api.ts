@@ -140,11 +140,38 @@ class ApiService {
   }
 
 
-  async generateVideo(text: string, avatar: string): Promise<VideoGenerationResponse> {
-    return this.request<VideoGenerationResponse>('/generate-video', {
-      method: 'POST',
-      body: JSON.stringify({ text, avatar }),
-    }, 600000); // 10 минут таймаут для генерации видео
+  async generateVideo(text: string, avatar: string): Promise<void> {
+    const controller = new AbortController();
+    const timeout = 20 * 60 * 1000; // 20 minutes
+
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      const response = await fetch(`${this.baseUrl}/generate-video`, {
+        method: "POST",
+        body: JSON.stringify({ text, avatar }),
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+      // Trigger download
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "lecture_video.mp4";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+        throw err; // Re-throw to maintain error handling in components
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
 
   async downloadVideo(taskId: string): Promise<Blob> {
