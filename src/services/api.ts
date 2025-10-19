@@ -58,7 +58,8 @@ class ApiService {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    timeoutMs: number = 30000
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     
@@ -75,7 +76,15 @@ class ApiService {
     };
 
     try {
-      const response = await fetch(url, config);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      
+      const response = await fetch(url, {
+        ...config,
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -129,7 +138,7 @@ class ApiService {
     return this.request<GenerateImageResponse>('/generate-video', {
       method: 'POST',
       body: JSON.stringify({ text, avatar }),
-    });
+    }, 600000); // 10 минут таймаут для генерации видео
   }
 
   // Health check
