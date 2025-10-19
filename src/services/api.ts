@@ -138,7 +138,7 @@ class ApiService {
     return this.request<GenerateImageResponse>('/generate-video', {
       method: 'POST',
       body: JSON.stringify({ text, avatar }),
-    }, 600000); // 10 минут таймаут для генерации видео
+    }, 12000000); // 10 минут таймаут для генерации видео
   }
 
   // Health check
