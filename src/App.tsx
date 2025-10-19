@@ -240,6 +240,12 @@ export default function App() {
       
       setIsGeneratingVideo(false);
       toast.success('✨ Video generated and downloaded successfully!');
+
+      localStorage.removeItem('savedLectureText');
+      setLectureText('');
+      setHasUnsavedChanges(false);
+      setIsApproved(false);
+    
       
       // Navigate to export page
       setTimeout(() => {
