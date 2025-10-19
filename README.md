@@ -75,6 +75,7 @@ Create a `.env` file in the `higgsfield` directory:
 HF_API_KEY=your_higgsfield_api_key
 HF_SECRET=your_higgsfield_secret
 DASHSCOPE_API_KEY=your_dashscope_api_key
+QWEN_BASE_URL=https://dashscope-intl.aliyuncs.com/compatible-mode/v1
 ```
 
 ### API Keys Setup
