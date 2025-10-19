@@ -44,6 +44,12 @@ export interface GenerateImageResponse {
   result: ItemResult[];
 }
 
+export interface VideoGenerationResponse {
+  status: number;
+  task_id: string;
+  message?: string;
+}
+
 export interface TextAndAvatarGeneration {
   text: string;
   avatar: string;
@@ -134,11 +140,30 @@ class ApiService {
   }
 
 
-  async generateVideo(text: string, avatar: string): Promise<GenerateImageResponse> {
-    return this.request<GenerateImageResponse>('/generate-video', {
+  async generateVideo(text: string, avatar: string): Promise<VideoGenerationResponse> {
+    return this.request<VideoGenerationResponse>('/generate-video', {
       method: 'POST',
       body: JSON.stringify({ text, avatar }),
-    }, 12000000); // 10 минут таймаут для генерации видео
+    }, 600000); // 10 минут таймаут для генерации видео
+  }
+
+  async downloadVideo(taskId: string): Promise<Blob> {
+    const url = `${this.baseUrl}/download-video/${taskId}`;
+    
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.blob();
+    } catch (error) {
+      console.error(`Video download failed for task ${taskId}:`, error);
+      throw error;
+    }
   }
 
   // Health check

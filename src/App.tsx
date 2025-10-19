@@ -67,6 +67,7 @@ export default function App() {
   const [styleDepth, setStyleDepth] = useState(50);
   const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
   const [backendConnected, setBackendConnected] = useState(false);
+  const [videoTaskId, setVideoTaskId] = useState<string | null>(null);
 
   // Check backend connection and load saved lecture text on app startup
   useEffect(() => {
@@ -238,11 +239,12 @@ export default function App() {
       const videoResponse = await apiService.generateVideo(lectureText, avatarUrl);
       
       if (videoResponse.status === 1) {
-        toast.success('🎬 Video with avatar generated successfully!');
+        setVideoTaskId(videoResponse.task_id);
+        toast.success('🎬 Video generation started!');
       }
       
       setIsGeneratingVideo(false);
-      toast.success('✨ Video generated successfully!');
+      toast.success('✨ Video generation initiated successfully!');
       
       // Navigate to export page
       setTimeout(() => {
@@ -323,6 +325,7 @@ export default function App() {
         {currentPage === 'video-export' && (
           <VideoExportPage
             lectureTitle={prompt}
+            videoTaskId={videoTaskId}
           />
         )}
       </AnimatePresence>
