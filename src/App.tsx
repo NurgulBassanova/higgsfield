@@ -9,6 +9,29 @@ import { Toaster } from './components/ui/sonner';
 import { toast } from 'sonner';
 import { apiService, LectureTopicRequest } from './services/api';
 import React from 'react';
+
+const avatars = [
+  { 
+    url: 'https://d3snorpfx4xhv8.cloudfront.net/c2906af4-60bf-416c-95e0-639aa06d11cd/cf3ca118-dd52-444a-b97c-ce0fc1d704af.jpeg',
+    id: 'yerzat', 
+    name: 'Yerzat'
+  },
+  { 
+    url: 'https://d3snorpfx4xhv8.cloudfront.net/c2906af4-60bf-416c-95e0-639aa06d11cd/37657c2a-3962-4575-bb80-89c2864f0be9.jpeg',
+    id: 'james', 
+    name: 'James', 
+  },
+  { 
+    url: 'https://d3snorpfx4xhv8.cloudfront.net/c2906af4-60bf-416c-95e0-639aa06d11cd/73009b0a-2e4c-4675-b77a-6f1425bac1cf.jpeg',
+    id: 'danelya', 
+    name: 'Danelya'
+  }
+];
+
+const getAvatarUrl = (avatarId: string): string => {
+  const avatar = avatars.find(a => a.id === avatarId);
+  return avatar?.url || '';
+};
 export interface LectureVersion {
   id: number;
   text: string;
@@ -205,25 +228,18 @@ export default function App() {
     try {
       toast.success('✨ Starting video generation...');
       
-      const imagePrompts = lectureText
-        .split('\n')
-        .filter(line => line.includes('**Image**:'))
-        .map(line => line.replace('**Image**:', '').trim())
-        .filter(prompt => prompt.length > 0);
+      const avatarUrl = getAvatarUrl(selectedAvatar);
       
-      if (imagePrompts.length > 0) {
-        // Generate images using the first prompt as an example
-        const imageResponse = await apiService.generateImage({
-          text: imagePrompts[0]
-        });
-        
-        if (imageResponse.status === 1) {
-          toast.success('🎨 Images generated successfully!');
-        }
+      if (!avatarUrl) {
+        throw new Error('Avatar URL not found');
       }
       
-      // Simulate additional video processing time
-      await new Promise(resolve => setTimeout(resolve, 2000));
+     
+      const videoResponse = await apiService.generateVideo(lectureText, avatarUrl);
+      
+      if (videoResponse.status === 1) {
+        toast.success('🎬 Video with avatar generated successfully!');
+      }
       
       setIsGeneratingVideo(false);
       toast.success('✨ Video generated successfully!');
@@ -266,7 +282,6 @@ export default function App() {
       <AnimatePresence mode="wait">
         {currentPage === 'prompt-script' && (
           <PromptScriptPage
-            key="prompt-script"
             prompt={prompt}
             tone={tone}
             audience={audience}
@@ -292,7 +307,6 @@ export default function App() {
 
         {currentPage === 'avatar-voice' && (
           <AvatarVoicePage
-            key="avatar-voice"
             selectedAvatar={selectedAvatar}
             selectedVoice={selectedVoice}
             voiceSpeed={voiceSpeed}
@@ -308,7 +322,6 @@ export default function App() {
 
         {currentPage === 'video-export' && (
           <VideoExportPage
-            key="video-export"
             lectureTitle={prompt}
           />
         )}

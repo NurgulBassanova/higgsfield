@@ -124,18 +124,11 @@ class ApiService {
     });
   }
 
-  // Image generation endpoints
-  async generateImage(request: TextForGenerationPrompt): Promise<GenerateImageResponse> {
-    return this.request<GenerateImageResponse>('/generate-image', {
-      method: 'POST',
-      body: JSON.stringify(request),
-    });
-  }
 
-  async generateImageWithAvatar(request: TextAndAvatarGeneration): Promise<GenerateImageResponse> {
-    return this.request<GenerateImageResponse>('/generate-image-with-avatar', {
+  async generateVideo(text: string, avatar: string): Promise<GenerateImageResponse> {
+    return this.request<GenerateImageResponse>('/generate-video', {
       method: 'POST',
-      body: JSON.stringify(request),
+      body: JSON.stringify({ text, avatar }),
     });
   }
 

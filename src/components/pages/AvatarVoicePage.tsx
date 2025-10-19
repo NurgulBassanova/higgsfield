@@ -6,9 +6,6 @@ import { Card } from '../ui/card';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Slider } from '../ui/slider';
-import yerzatImg from '../../assets/5292c462b881b123eddb6787689e8484de390c37.png';
-import jamesImg from '../../assets/2a2e2c263f941d47cbb664ae988fc3044a3373ec.png';
-import danelyaImg from '../../assets/331251e249e74d3c6758b4ee7ad282a51b7b1a80.png';
 
 interface AvatarVoicePageProps {
   selectedAvatar: string;
@@ -25,25 +22,25 @@ interface AvatarVoicePageProps {
 
 const avatars = [
   { 
+    url: 'https://d3snorpfx4xhv8.cloudfront.net/c2906af4-60bf-416c-95e0-639aa06d11cd/cf3ca118-dd52-444a-b97c-ce0fc1d704af.jpeg',
     id: 'yerzat', 
     name: 'Yerzat', 
-    image: yerzatImg, 
     description: 'Male Energetic',
     voiceId: 'yerzat',
     voiceLabel: 'Yerzat — Male, Energetic'
   },
   { 
+    url: 'https://d3snorpfx4xhv8.cloudfront.net/c2906af4-60bf-416c-95e0-639aa06d11cd/37657c2a-3962-4575-bb80-89c2864f0be9.jpeg',
     id: 'james', 
     name: 'James', 
-    image: jamesImg, 
     description: 'Male Calm',
     voiceId: 'james',
     voiceLabel: 'James — Male, Calm'
   },
   { 
+    url: 'https://d3snorpfx4xhv8.cloudfront.net/c2906af4-60bf-416c-95e0-639aa06d11cd/73009b0a-2e4c-4675-b77a-6f1425bac1cf.jpeg',
     id: 'danelya', 
     name: 'Danelya', 
-    image: danelyaImg, 
     description: 'Female Friendly',
     voiceId: 'danelya',
     voiceLabel: 'Danelya — Female, Friendly'
@@ -107,7 +104,7 @@ export function AvatarVoicePage({
                 >
                   <div className="aspect-square mb-4 rounded-xl overflow-hidden bg-muted">
                     <img 
-                      src={avatar.image} 
+                      src={avatar.url} 
                       alt={avatar.name}
                       className="w-full h-full object-cover"
                     />
